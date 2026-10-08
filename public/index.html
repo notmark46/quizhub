@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QuizHub – Subject Tests</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1c2130;--mut:#667085;--line:#e3e6ee;--pri:#4f46e5;--ok:#16a34a;--bad:#dc2626;--okbg:#e8f7ee;--badbg:#fdeceb;--selbg:#eef0ff;--warnbg:#fff5e0;--amber:#d97706;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1220;--card:#181c2e;--ink:#e8eaf2;--mut:#98a1b8;--line:#2a3047;--pri:#8b87ff;--ok:#4ade80;--bad:#f87171;--okbg:#12301f;--badbg:#3a1818;--selbg:#232850;--warnbg:#3a2c10;--amber:#fbbf24}}
+:root[data-theme="dark"]{--bg:#0f1220;--card:#181c2e;--ink:#e8eaf2;--mut:#98a1b8;--line:#2a3047;--pri:#8b87ff;--ok:#4ade80;--bad:#f87171;--okbg:#12301f;--badbg:#3a1818;--selbg:#232850;--warnbg:#3a2c10;--amber:#fbbf24}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'Noto Sans','Noto Sans Devanagari',system-ui,-apple-system,'Segoe UI',sans-serif}
+#app{max-width:980px;margin:0 auto;padding:16px}
+h1{margin:.2em 0}h3{margin:14px 0 2px;font-size:15px;color:var(--pri)}
+.mut{color:var(--mut);font-size:13px}.sp{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input#nm{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin-left:6px}
+.btn{background:#4f46e5;color:#fff;border:0;border-radius:10px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}.btn.danger{background:var(--bad)}
+.btn:disabled{opacity:.4;cursor:default}.full{width:100%;margin-top:10px}
+summary{cursor:pointer}pre{overflow-x:auto;font-size:12px}
+.trow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.tn{font-weight:600}
+.note{background:var(--warnbg);border:1px solid var(--amber);border-radius:10px;padding:10px 12px;margin:10px 0}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.ttl{font-weight:600;font-size:13px}.clk{font:700 20px ui-monospace,Menlo,monospace;color:var(--pri)}.clk.low{color:var(--bad)}
+.lay{display:grid;grid-template-columns:1fr 250px;gap:12px;align-items:start}
+@media(max-width:760px){.lay{grid-template-columns:1fr}}
+.qt{font-size:16px;margin:8px 0}.qt p{margin:.3em 0}
+.qt table td,.qt table th{border:1px solid var(--line);padding:4px 10px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;cursor:pointer}
+div.opt{cursor:default}.opt p{margin:0}.opt.sel{border-color:var(--pri);background:var(--selbg)}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}.opt.bad{border-color:var(--bad);background:var(--badbg)}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pb{padding:8px 0;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer}
+.pb.nv{border-color:var(--bad)}.pb.an{background:var(--ok);color:#fff;border-color:var(--ok)}.pb.mk{background:var(--amber);color:#fff;border-color:var(--amber)}.pb.cur{outline:2px solid var(--pri);outline-offset:1px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}.sv{font-size:22px;font-weight:700}
+.seg{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin:12px 0}
+.badge{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;margin-right:6px}
+.badge.c{background:var(--okbg);color:var(--ok)}.badge.w{background:var(--badbg);color:var(--bad)}.badge.u,.badge.x{background:var(--line);color:var(--mut)}
+table.lb{width:100%;border-collapse:collapse}.lb td,.lb th{padding:6px 8px;border-top:1px solid var(--line);text-align:left}.lb tr.me{background:var(--selbg);font-weight:600}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.sub,.folder{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;cursor:pointer;text-align:left}
+.sub{padding:18px;font-weight:600;font-size:16px;display:flex;flex-direction:column;gap:6px}.ic{font-size:26px}
+.folder{width:100%;padding:12px 16px;margin:6px 0;display:flex;justify-content:space-between;gap:10px}
+.sub:hover,.folder:hover{border-color:var(--pri)}.crumb{margin:8px 0}.crumb a{color:var(--pri);cursor:pointer;text-decoration:underline}
+.leaf{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.sol{margin-top:12px;padding:10px 14px;border-left:3px solid var(--pri);background:var(--selbg);border-radius:8px}.sol h3{margin:4px 0;font-size:15px}.sol p{margin:.4em 0}.chip{padding:5px 10px;font-size:13px}
+.lay{align-items:stretch}
+#pal{position:relative;padding:0;min-height:320px}
+.pin{position:absolute;inset:0;padding:14px;display:flex;flex-direction:column;gap:8px}
+.pg{flex:1;min-height:0;overflow-y:auto;position:relative;padding-right:4px}
+.pf{flex:none}.pf p{margin:4px 0}
+@media(max-width:760px){#pal{height:260px;min-height:0}}
+.bar{flex-wrap:wrap}.chip.on{background:var(--selbg);border-color:var(--pri);color:var(--pri)}
+.pb.c{background:var(--ok);color:#fff;border-color:var(--ok)}.pb.w{background:var(--bad);color:#fff;border-color:var(--bad)}.pb.u{opacity:.75}
+.kn{flex:none;min-width:22px;height:22px;border-radius:6px;background:var(--line);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;font-size:12px}.kb{margin-top:10px}
+</style></head>
+<body><div id="app"></div>
+<script>
+const $=s=>document.querySelector(s),app=$('#app');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=ms=>{const s=Math.max(0,Math.round(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const OK=new Set('P B STRONG I EM U BR TABLE THEAD TBODY TR TD TH SUB SUP UL OL LI H2 H3 H4'.split(' '));
+function clean(html,fb){if(!html)return esc(fb);const d=new DOMParser().parseFromString(html,'text/html'),out=document.createElement('div');
+ (function w(n,t){for(const c of n.childNodes){if(c.nodeType===3)t.append(c.textContent);else if(c.nodeType===1){const g=c.tagName;if(g==='SCRIPT'||g==='STYLE')continue;if(OK.has(g)){const e=document.createElement(g);w(c,e);t.append(e)}else w(c,t)}}})(d.body,out);return out.innerHTML}
+const DG={A:{min:70},B:{min:50},C:{min:35},D:{min:20},E:{min:10},F:{min:0}};
+const grade=(p,g)=>Object.entries(g||DG).sort((a,b)=>b[1].min-a[1].min).find(([k,v])=>p>=v.min)?.[0]||'F';
+/* accepts {answers,test:{sections}} OR the flat {name,duration,ques:[...]} format; correct option = isCorrect:true */
+function norm(e){if(!e||e._n)return e;
+ if(!e.test&&Array.isArray(e.ques))e={answers:e.answers,test:{name:e.name,duration:e.duration,settings:e.settings,sections:[{name:'',questions:e.ques}]}};
+ for(const sc of e.test?.sections||[])sc.questions=(sc.questions||[]).map(q=>{const m=q.marks||{},ops=(q.options||[]).map((o,i)=>({...o,order:o.order??i+1})),ok=ops.filter(o=>o.isCorrect===true).map(o=>o.order);
+  return{...q,options:ops,marks:{positive:m.positive>0?m.positive:1,negative:m.positive>0?(m.negative||0):0},_ok:ok.length?ok:null}});
+ e._n=1;return e}
+const Qs=e=>(e.test.sections||[]).flatMap(s=>(s.questions||[]).map(q=>({...q,_sec:s.name})));
+let S=null,IDX=[],nav={f:null,p:[]},V=null;
+
+const cache={};
+async function load(f){if(!cache[f]){const r=await fetch('files/'+f);if(!r.ok)throw new Error(f+' → HTTP '+r.status);cache[f]=await r.json()}return cache[f]}
+const kids=n=>Object.entries(n).filter(([k])=>k[0]!=='_');
+const isLeaf=v=>typeof v==='string'||!!(v&&typeof v.test==='object'&&v.test)||Array.isArray(v?.ques);
+const cnt=n=>isLeaf(n)?1:kids(n).reduce((s,[,v])=>s+cnt(v),0);
+const cur=()=>nav.p.reduce((n,k)=>n[k],cache[nav.f]);
+const pid=k=>nav.f+'/'+[...nav.p,k].join('/');
+const note=t=>{const m=$('#msg');if(m)m.innerHTML='<div class="note">'+esc(t)+'</div>'};
+function leaf(k,v,i,at){const e=typeof v==='string'?null:norm(v),m=at.filter(a=>a.id===pid(k)),b=m.length?Math.max(...m.map(a=>a.sc)):0;let meta='';
+ if(e&&e.test.sections){const qs=Qs(e),d=e.test.duration;meta=`${qs.length} Qs · ${qs.reduce((s,q)=>s+(q.marks?.positive??1),0)} marks · ${d?Math.round(d/6e4)+' min':'untimed'}`}
+ if(m.length)meta+=`${meta?' · ':''}${m.length} attempt${m.length>1?'s':''} · best ${b}`;
+ return `<div class="card leaf"><div><div class="tn">${esc(k)}</div><div class="mut">${meta}</div></div><button class="btn" data-start="${i}">Start test</button></div>`}
+async function browse(){if(S)clearInterval(S.iv);S=null;const at=store.get('att',[]);
+ app.innerHTML=`<h1>📚 QuizHub</h1><div class="card row"><label>Your name <input id="nm" value="${esc(store.get('name',''))}" placeholder="Enter your name" maxlength="40"></label></div><div id="crumb" class="mut crumb"></div><div id="msg"></div><div id="list">Loading…</div>`;
+ const L=$('#list');
+ try{
+  if(!nav.f){if(!IDX.length){const r=await fetch('files/index.json');if(!r.ok)throw new Error('files/index.json not found. Run "node build-index.js" (see the guide).');IDX=await r.json()}
+   $('#crumb').textContent='Choose a subject';
+   L.innerHTML=IDX.length?`<div class="sgrid">${IDX.map((s,i)=>`<button class="sub" data-sub="${i}"><span class="ic">${esc(s.icon||'📘')}</span>${esc(s.name)}</button>`).join('')}</div>`:'<p class="mut">No subject files found in files/ yet.</p>';return}
+  await load(nav.f);const sj=IDX.find(s=>s.file===nav.f)?.name||nav.f,tr=[['All subjects',-1],[sj,0],...nav.p.map((k,i)=>[k,i+1])];
+  $('#crumb').innerHTML=tr.map(([t,n],i)=>i<tr.length-1?`<a data-c="${n}">${esc(t)}</a>`:`<b>${esc(t)}</b>`).join(' › ');
+  const ks=kids(cur());
+  L.innerHTML=ks.map(([k,v],i)=>isLeaf(v)?leaf(k,v,i,at):`<button class="folder" data-open="${i}"><span>📁 ${esc(k)}</span><span class="mut">${cnt(v)} test${cnt(v)>1?'s':''} ›</span></button>`).join('')||'<p class="mut">Nothing here yet.</p>';
+ }catch(e){L.innerHTML=`<div class="note">${esc(e.message||e)}</div>`}}
+
+function start(e,title,pid){e=norm(e);if(!e?.test?.sections)return note('This test file is missing "test.sections".');const nm=($('#nm')?.value||S?.name||'').trim()||'Student';store.set('name',nm);const k=e.answers||{};
+ const qs=Qs(e).map((q,i)=>{const c=k[q._id]??k[i+1]??q.correctOrder,a=c!=null?[+c]:q._ok;return{...q,_c:a,_any:!!a&&a.length>1&&a.length===(q.options||[]).length}});
+ if(!qs.length)return note('This test has no questions.');const t=e.test;
+ S={e,title,pid,t,qs,name:nm,mode:'test',a:[],m:[],v:[1],tm:[],cur:0,cf:0,dur:t.duration||t.testTotalDuration||0,t0:Date.now(),q0:Date.now()};
+ S.iv=setInterval(tick,1000);
+ app.innerHTML=`<div class="bar"><div class="ttl">${esc(title)}</div><div class="clk" id="clk"></div></div><div class="lay"><section class="card" id="q"></section><aside class="card" id="pal"></aside></div>`;rq();pal();tick()}
+function tick(){const l=S.dur?S.dur-(Date.now()-S.t0):Date.now()-S.t0;if(S.dur&&l<=0)return submit();const c=$('#clk');c.textContent=fmt(l);c.classList.toggle('low',!!S.dur&&l<6e4)}
+function rq(){const i=S.cur,q=S.qs[i],n=S.qs.length;
+ $('#q').innerHTML=`<div class="mut">Question ${i+1} of ${n} · +${q.marks?.positive??1} / −${q.marks?.negative||0}${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map((o,j)=>`<label class="opt ${S.a[i]===o.order?'sel':''}"><input type="radio" name="o" value="${o.order}" ${S.a[i]===o.order?'checked':''}><b class="kn">${j+1}</b><span>${clean(o.name,o.nameText)}</span></label>`).join('')}
+ <div class="ctl"><button class="btn ghost" data-act="prev" ${i?'':'disabled'}>← Previous</button><button class="btn ghost" data-act="clear">Clear</button><button class="btn ghost" data-act="mark">${S.m[i]?'Unmark review':'Mark for review'}</button><button class="btn" data-act="next" ${i<n-1?'':'disabled'}>Save &amp; Next →</button></div><p class="mut kb">Shortcuts: ← → previous / next · 1–4 choose option · M mark for review · C clear · S submit</p>`}
+const cen=()=>{const c=$('.pg .cur'),g=$('.pg');if(c&&g)g.scrollTop=c.offsetTop-g.clientHeight/2+c.offsetHeight/2};
+function pal(c){const n=S.qs.length,A=S.a.filter(x=>x!=null).length,M=S.m.filter(Boolean).length,g=$('.pg'),y=g?g.scrollTop:0;
+ $('#pal').innerHTML=`<div class="pin"><div class="pg"><div class="grid">${S.qs.map((q,i)=>`<button data-q="${i}" class="pb ${i===S.cur?'cur ':''}${S.m[i]?'mk':S.a[i]!=null?'an':S.v[i]?'nv':''}">${i+1}</button>`).join('')}</div></div><div class="pf"><p class="mut">🟩 ${A} answered · 🟧 ${M} review · ⬜ ${n-A} unanswered</p><button class="btn full ${S.cf?'danger':''}" data-act="sub">${S.cf?'Press again to submit':'Submit test (S)'}</button></div></div>`;
+ $('.pg').scrollTop=y;if(c)cen()}
+const pick=o=>{S.a[S.cur]=o;S.cf=0;rq();pal()};
+function go(n){S.tm[S.cur]=(S.tm[S.cur]||0)+Date.now()-S.q0;S.q0=Date.now();S.cur=n;S.v[n]=1;S.cf=0;rq();pal(1);scrollTo(0,0)}
+
+function submit(){clearInterval(S.iv);S.tm[S.cur]=(S.tm[S.cur]||0)+Date.now()-S.q0;
+ const used=Math.min(Date.now()-S.t0,S.dur||Infinity);let sc=0,c=0,w=0,u=0,x=0,tot=0;
+ const st=S.qs.map((q,i)=>{const p=q.marks?.positive??1,ng=q.marks?.negative||0,a=S.a[i];tot+=p;if(a==null){u++;return'u'}if(!q._c){x++;return'x'}if(q._any||q._c.includes(a)){c++;sc+=p;return'c'}w++;sc-=ng;return'w'});
+ sc=Math.round(sc*100)/100;const rec={id:S.pid,name:S.name,sc,tot,used,c,w,u,at:Date.now()};
+ const at=store.get('att',[]);at.push(rec);store.set('att',at.slice(-500));S.res={rec,st,x,all:at.filter(a=>a.id===rec.id)};result(S.res.all)}
+function result(all){S.mode='result';const{rec,st,x}=S.res,t=S.t,n0=S.qs.length,best={};
+ all.forEach(a=>{const k=a.name.toLowerCase(),b=best[k];if(!b||a.sc>b.sc||(a.sc===b.sc&&a.used<b.used))best[k]=a});
+ const lb=Object.values(best).sort((a,b)=>b.sc-a.sc||a.used-b.used),me=best[rec.name.toLowerCase()],n=lb.length;
+ const rank=1+lb.filter(a=>a.sc>me.sc||(a.sc===me.sc&&a.used<me.used)).length,below=lb.filter(a=>a.sc<me.sc).length;
+ const pct=rec.tot?Math.max(0,rec.sc/rec.tot*100):0,att=rec.c+rec.w,pc=v=>v/n0*100;
+ const sa=t.settings?.showAnswers!==false;
+ const stats=[['Score',`${rec.sc} / ${rec.tot}`],['Rank',`#${rank} of ${n}`],['Time taken',fmt(rec.used)+(S.dur?' / '+fmt(S.dur):'')],['Accuracy',att?Math.round(rec.c/att*100)+'%':'—'],['Grade',grade(pct,t.settings?.grades)],['Percentile',n>1?Math.round(below/n*100)+'%':'—'],['Avg / question',Math.round(rec.used/1000/n0)+'s']];
+ app.innerHTML=`<h1>Result</h1><p class="mut">${esc(S.title)} · ${esc(rec.name)}</p>
+ ${S.dur&&rec.used>=S.dur-1000?'<div class="note">⏰ Time was up, so the test was submitted automatically.</div>':''}
+ ${x===n0?'<div class="note">No answer key found for this test, so nothing could be graded. Add an <b>answers</b> key to the test JSON (see “JSON format” on the home page).</div>':''}
+ <div class="stats">${stats.map(([a,b])=>`<div class="stat"><div class="mut">${a}</div><div class="sv">${b}</div></div>`).join('')}</div>
+ <div class="seg"><i style="width:${pc(rec.c)}%;background:var(--ok)"></i><i style="width:${pc(rec.w)}%;background:var(--bad)"></i></div>
+ <p class="mut">✅ ${rec.c} correct · ❌ ${rec.w} wrong · ⏭ ${rec.u} unattempted. Rank is among students who used this browser (best attempt each).</p>
+ <div class="ctl">${sa?'<button class="btn" data-act="review">Review answers (R)</button>':''}<button class="btn ghost" data-act="retake">Retake</button><button class="btn ghost" data-act="back">Back to tests</button></div>
+
+ `;scrollTo(0,0)}
+
+const LAB={c:'Correct',w:'Wrong',u:'Skipped',x:'Ungraded'};
+const rlist=()=>S.qs.map((q,i)=>i).filter(i=>V.f==='all'||S.res.st[i]==='w');
+function rvGo(d){const ls=rlist(),p=ls.indexOf(V.i)+d;if(p>=0&&p<ls.length)review(ls[p])}
+function review(i){S.mode='review';const st=S.res.st;if(!V)V={f:'all',i:0};if(i!=null)V.i=i;
+ const ls=rlist(),nw=st.filter(z=>z==='w').length;if(ls.length&&!ls.includes(V.i))V.i=ls[0];
+ const k=V.i,q=S.qs[k],p=ls.indexOf(k);
+ const body=ls.length?`<div class="mut">Question ${k+1} of ${S.qs.length} · <span class="badge ${st[k]}">${LAB[st[k]]}</span> ${Math.round((S.tm[k]||0)/1000)}s${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map(o=>`<div class="opt ${q._c?.includes(o.order)?'ok':o.order===S.a[k]?'bad':''}"><span>${clean(o.name,o.nameText)}${o.order===S.a[k]?' <small>(your answer)</small>':''}${q._c?.includes(o.order)?' ✓':''}</span></div>`).join('')}${(q.solution||'').trim()?`<div class="sol"><b>Explanation</b>${clean(q.solution)}</div>`:''}<div class="ctl"><button class="btn ghost" data-rn="-1" ${p>0?'':'disabled'}>← Previous</button><button class="btn" data-rn="1" ${p<ls.length-1?'':'disabled'}>Next →</button></div><p class="mut kb">Shortcuts: ← → previous / next · F toggle wrong-only · Esc back to results</p>`:'<p>🎉 No wrong answers to review.</p>';
+ app.innerHTML=`<div class="bar"><div class="ttl">${esc(S.title)} · Review</div><div class="row"><button class="btn ghost chip ${V.f==='all'?'on':''}" data-rf="all">All questions (${S.qs.length})</button><button class="btn ghost chip ${V.f==='w'?'on':''}" data-rf="w">Wrong only (${nw})</button><button class="btn ghost chip" data-act="results">← Results</button></div></div><div class="lay"><section class="card" id="q">${body}</section><aside class="card" id="pal"><div class="pin"><div class="pg"><div class="grid">${ls.map(j=>`<button data-rq="${j}" class="pb ${st[j]} ${j===k?'cur':''}">${j+1}</button>`).join('')}</div></div><div class="pf"><p class="mut">🟩 correct · 🟥 wrong · ⬜ skipped</p></div></div></aside></div>`;
+ cen();scrollTo(0,0)}
+function act(a){if(a==='back')return browse();if(a==='review'){V=null;return review(0)}if(a==='results')return result(S.res.all);if(a==='retake')return start(S.e,S.title,S.pid);
+ if(a==='prev'&&S.cur>0)go(S.cur-1);
+ if(a==='next'&&S.cur<S.qs.length-1)go(S.cur+1);
+ if(a==='clear'){S.a[S.cur]=null;rq();pal()}
+ if(a==='mark'){S.m[S.cur]=!S.m[S.cur];rq();pal()}
+ if(a==='sub'){if(!S.cf){S.cf=1;pal()}else submit()}}
+app.addEventListener('click',async ev=>{const b=ev.target.closest('[data-act],[data-sub],[data-open],[data-start],[data-c],[data-q],[data-rq],[data-rn],[data-rf]');if(!b)return;const d=b.dataset;
+ if(d.sub!=null){nav={f:IDX[+d.sub].file,p:[]};browse()}
+ else if(d.open!=null){nav.p.push(kids(cur())[+d.open][0]);browse()}
+ else if(d.c!=null){const n=+d.c;if(n<0)nav={f:null,p:[]};else nav.p=nav.p.slice(0,n);browse()}
+ else if(d.start!=null){const[k,v]=kids(cur())[+d.start];let e=v;if(typeof v==='string'){try{e=await load(v)}catch(x){return note('Could not load '+v+' – check the path in your subject file.')}}start(e,k,pid(k))}
+ else if(d.rq!=null)review(+d.rq);else if(d.rn!=null)rvGo(+d.rn);else if(d.rf){V.f=d.rf;review()}
+ else if(d.q!=null)go(+d.q);else act(d.act)});
+app.addEventListener('change',ev=>{if(ev.target.name==='o'&&S?.mode==='test')pick(+ev.target.value)});
+document.addEventListener('keydown',ev=>{if(!S||ev.ctrlKey||ev.metaKey||ev.altKey)return;const k=ev.key.toLowerCase(),m=S.mode;let h=1;
+ if(m==='test'){const q=S.qs[S.cur];
+  if(k==='arrowright'||k==='n')act('next');else if(k==='arrowleft'||k==='p')act('prev');
+  else if(k>='1'&&k<='9'&&+k<=(q.options||[]).length)pick(q.options[+k-1].order);
+  else if(k==='m')act('mark');else if(k==='c'||k==='backspace'||k==='delete')act('clear');
+  else if(k==='s')act('sub');else if(k==='escape'&&S.cf){S.cf=0;pal()}else h=0}
+ else if(m==='review'){if(k==='arrowright'||k==='n')rvGo(1);else if(k==='arrowleft'||k==='p')rvGo(-1);else if(k==='f'){V.f=V.f==='all'?'w':'all';review()}else if(k==='escape'||k==='r')act('results');else h=0}
+ else if(m==='result'&&k==='r'&&S.t.settings?.showAnswers!==false)act('review');
+ else h=0;
+ if(h)ev.preventDefault()});
+browse();
+</script></body></html>

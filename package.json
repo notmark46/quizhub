@@ -1,0 +1,5 @@
+{
+  "name": "quizhub",
+  "private": true,
+  "scripts": { "build": "node build-index.js" }
+}
