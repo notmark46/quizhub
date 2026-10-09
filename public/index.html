@@ -51,14 +51,79 @@ table.lb{width:100%;border-collapse:collapse}.lb td,.lb th{padding:6px 8px;borde
 .leaf{display:flex;justify-content:space-between;gap:12px;align-items:center}
 .sol{margin-top:12px;padding:10px 14px;border-left:3px solid var(--pri);background:var(--selbg);border-radius:8px}.sol h3{margin:4px 0;font-size:15px}.sol p{margin:.4em 0}.chip{padding:5px 10px;font-size:13px}
 .lay{align-items:stretch}
-#pal{position:relative;padding:0;min-height:320px}
-.pin{position:absolute;inset:0;padding:14px;display:flex;flex-direction:column;gap:8px}
-.pg{flex:1;min-height:0;overflow-y:auto;position:relative;padding-right:4px}
+#pal{padding:0;overflow:hidden}
+.pin{height:100%;padding:14px;display:flex;flex-direction:column;gap:8px}
+.pg{flex:1;min-height:0;overflow-y:auto;position:relative;padding:3px;overscroll-behavior:contain}
 .pf{flex:none}.pf p{margin:4px 0}
-@media(max-width:760px){#pal{height:260px;min-height:0}}
 .bar{flex-wrap:wrap}.chip.on{background:var(--selbg);border-color:var(--pri);color:var(--pri)}
 .pb.c{background:var(--ok);color:#fff;border-color:var(--ok)}.pb.w{background:var(--bad);color:#fff;border-color:var(--bad)}.pb.u{opacity:.75}
 .kn{flex:none;min-width:22px;height:22px;border-radius:6px;background:var(--line);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;font-size:12px}.kb{margin-top:10px}
+/* full-screen test/review shell: outer boxes and buttons are fixed, only inner content scrolls */
+body.fx{overflow:hidden;overscroll-behavior:none}
+body.fx #app{position:fixed;inset:0;height:100vh;height:100dvh;max-width:none;margin:0;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:10px;background:var(--bg);overflow:hidden}
+body.fx .bar,body.fx .lay{width:100%;max-width:1600px;margin:0 auto}
+body.fx .bar{position:static;flex:none}
+body.fx .lay{flex:1;min-height:0;grid-template-rows:minmax(0,1fr)}
+body.fx .lay>.card{margin:0;min-height:0}
+body.fx #q{display:flex;flex-direction:column;padding:0;overflow:hidden}
+.qbody{flex:1;min-height:0;overflow-y:auto;padding:14px 16px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.qfoot{flex:none;border-top:1px solid var(--line);padding:10px 14px}
+.qfoot .ctl{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0}.qfoot .ctl.two{grid-template-columns:repeat(2,1fr)}
+.qfoot .btn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:10px 6px}
+.qfoot .kb{margin:8px 0 0;font-size:12px}
+.ttl{flex:1 1 0;min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.clk{flex:none;min-width:64px;text-align:right}
+.qt,.opt,.sol{overflow-wrap:anywhere}.qt table{display:block;max-width:100%;overflow-x:auto}
+/* other pages */
+.card.row label{display:flex;align-items:center;gap:8px;flex:1 1 220px;min-width:0}
+input#nm{flex:1;min-width:0;font-size:16px;margin-left:0}
+.leaf>div{min-width:0}.leaf .btn{flex:none}.tn{overflow-wrap:anywhere}
+.folder span:first-child{min-width:0;overflow-wrap:anywhere;text-align:left}
+.sgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+@media(max-width:760px){
+ #app{padding:12px}h1{font-size:22px}.stats{grid-template-columns:repeat(2,1fr)}.stat .sv{font-size:19px}
+ body.fx #app{gap:8px}
+ body.fx .lay{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:8px}
+ body.fx #pal{order:-1}
+ body.fx .pin{flex-direction:row;align-items:center;padding:8px 10px;gap:8px;height:auto}
+ body.fx .pg{overflow-x:auto;overflow-y:hidden}
+ body.fx .grid{display:flex;gap:6px;width:max-content}
+ body.fx .pb{flex:none;width:40px;height:40px;padding:0}
+ body.fx .pf p,body.fx .lgd{display:none}
+ body.fx .pf .btn.full{width:116px;margin:0;padding:9px 4px;white-space:nowrap}
+ .rsl{display:grid;grid-template-columns:1fr 1fr}.rsl .btn:first-child:nth-last-child(3){grid-column:1/-1}
+ .lg{display:none}.qbody{padding:12px}.qfoot{padding:8px 10px}.qt{font-size:15px}
+ .qfoot .ctl:not(.two){grid-template-columns:auto 1fr 1fr 1.5fr}
+ .qfoot .btn{padding:10px 8px}.qfoot .btn[data-act=prev]{min-width:50px}
+}
+@media(max-width:360px){.qfoot .btn{font-size:14px;padding:10px 4px}}
+@media(hover:none){.kb{display:none}}
+.opt .ot{flex:1;min-width:0}.mk2{flex:none;margin-left:auto;font-weight:700;font-size:12px;white-space:nowrap;color:var(--mut)}
+.opt.ok .mk2{color:var(--ok)}.opt.bad .mk2{color:var(--bad)}
+@media(max-width:760px){
+ body.fx .bar{padding:8px 10px;gap:6px 8px}
+ body.fx .rvbar .ttl{flex:1 1 100%;-webkit-line-clamp:1}
+ body.fx .rvbar .row{flex:1 1 100%;gap:6px;flex-wrap:nowrap}
+ body.fx .rvbar .row .chip{padding:6px 9px;font-size:13px;white-space:nowrap}
+ body.fx .rvbar .row .chip:last-child{margin-left:auto}
+ .mk2{font-size:11px}
+}
+@media(max-width:760px){.bar .clk{font-size:18px}}
+/* sidebar legend: three fixed cells, never wraps, so the Submit button never moves */
+.lgd{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:0 0 10px}
+.lgd>div{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;border:1px solid var(--line);border-radius:10px;min-width:0;line-height:1.25}
+.lgd b{font-size:16px;display:flex;align-items:center}.lgd span{font-size:10.5px;color:var(--mut);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;border:1px solid var(--line);vertical-align:-1px}
+.sw.an,.sw.c{background:var(--ok);border-color:var(--ok)}.sw.mk{background:var(--amber);border-color:var(--amber)}.sw.w{background:var(--bad);border-color:var(--bad)}.sw.nv,.sw.u{background:var(--bg)}
+/* big screens: boxes keep filling the width, text and sidebar scale up */
+@media(min-width:1400px){body.fx{font-size:17px}body.fx .lay{grid-template-columns:minmax(0,1fr) 300px}body.fx .qt{font-size:19px}body.fx .pb{padding:10px 0}}
+/* landscape phones / very short screens */
+@media(max-height:480px){
+ body.fx #app{gap:6px;padding-top:max(6px,env(safe-area-inset-top));padding-bottom:max(6px,env(safe-area-inset-bottom))}
+ .qfoot .kb{display:none}.qbody{padding:10px 12px}
+ body.fx .pb{width:34px;height:34px}
+ body.fx .bar{padding:6px 10px}
+ .qfoot{padding:6px 10px}.qfoot .btn{padding:8px 6px}
+}
 </style></head>
 <body><div id="app"></div>
 <script>
@@ -92,7 +157,7 @@ function leaf(k,v,i,at){const e=typeof v==='string'?null:norm(v),m=at.filter(a=>
  if(e&&e.test.sections){const qs=Qs(e),d=e.test.duration;meta=`${qs.length} Qs · ${qs.reduce((s,q)=>s+(q.marks?.positive??1),0)} marks · ${d?Math.round(d/6e4)+' min':'untimed'}`}
  if(m.length)meta+=`${meta?' · ':''}${m.length} attempt${m.length>1?'s':''} · best ${b}`;
  return `<div class="card leaf"><div><div class="tn">${esc(k)}</div><div class="mut">${meta}</div></div><button class="btn" data-start="${i}">Start test</button></div>`}
-async function browse(){if(S)clearInterval(S.iv);S=null;const at=store.get('att',[]);
+async function browse(){fx(0);if(S)clearInterval(S.iv);S=null;const at=store.get('att',[]);
  app.innerHTML=`<h1>📚 QuizHub</h1><div class="card row"><label>Your name <input id="nm" value="${esc(store.get('name',''))}" placeholder="Enter your name" maxlength="40"></label></div><div id="crumb" class="mut crumb"></div><div id="msg"></div><div id="list">Loading…</div>`;
  const L=$('#list');
  try{
@@ -109,16 +174,17 @@ function start(e,title,pid){e=norm(e);if(!e?.test?.sections)return note('This te
  const qs=Qs(e).map((q,i)=>{const c=k[q._id]??k[i+1]??q.correctOrder,a=c!=null?[+c]:q._ok;return{...q,_c:a,_any:!!a&&a.length>1&&a.length===(q.options||[]).length}});
  if(!qs.length)return note('This test has no questions.');const t=e.test;
  S={e,title,pid,t,qs,name:nm,mode:'test',a:[],m:[],v:[1],tm:[],cur:0,cf:0,dur:t.duration||t.testTotalDuration||0,t0:Date.now(),q0:Date.now()};
- S.iv=setInterval(tick,1000);
+ S.iv=setInterval(tick,1000);fx(1);
  app.innerHTML=`<div class="bar"><div class="ttl">${esc(title)}</div><div class="clk" id="clk"></div></div><div class="lay"><section class="card" id="q"></section><aside class="card" id="pal"></aside></div>`;rq();pal();tick()}
 function tick(){const l=S.dur?S.dur-(Date.now()-S.t0):Date.now()-S.t0;if(S.dur&&l<=0)return submit();const c=$('#clk');c.textContent=fmt(l);c.classList.toggle('low',!!S.dur&&l<6e4)}
 function rq(){const i=S.cur,q=S.qs[i],n=S.qs.length;
- $('#q').innerHTML=`<div class="mut">Question ${i+1} of ${n} · +${q.marks?.positive??1} / −${q.marks?.negative||0}${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map((o,j)=>`<label class="opt ${S.a[i]===o.order?'sel':''}"><input type="radio" name="o" value="${o.order}" ${S.a[i]===o.order?'checked':''}><b class="kn">${j+1}</b><span>${clean(o.name,o.nameText)}</span></label>`).join('')}
- <div class="ctl"><button class="btn ghost" data-act="prev" ${i?'':'disabled'}>← Previous</button><button class="btn ghost" data-act="clear">Clear</button><button class="btn ghost" data-act="mark">${S.m[i]?'Unmark review':'Mark for review'}</button><button class="btn" data-act="next" ${i<n-1?'':'disabled'}>Save &amp; Next →</button></div><p class="mut kb">Shortcuts: ← → previous / next · 1–4 choose option · M mark for review · C clear · S submit</p>`}
-const cen=()=>{const c=$('.pg .cur'),g=$('.pg');if(c&&g)g.scrollTop=c.offsetTop-g.clientHeight/2+c.offsetHeight/2};
-function pal(c){const n=S.qs.length,A=S.a.filter(x=>x!=null).length,M=S.m.filter(Boolean).length,g=$('.pg'),y=g?g.scrollTop:0;
- $('#pal').innerHTML=`<div class="pin"><div class="pg"><div class="grid">${S.qs.map((q,i)=>`<button data-q="${i}" class="pb ${i===S.cur?'cur ':''}${S.m[i]?'mk':S.a[i]!=null?'an':S.v[i]?'nv':''}">${i+1}</button>`).join('')}</div></div><div class="pf"><p class="mut">🟩 ${A} answered · 🟧 ${M} review · ⬜ ${n-A} unanswered</p><button class="btn full ${S.cf?'danger':''}" data-act="sub">${S.cf?'Press again to submit':'Submit test (S)'}</button></div></div>`;
- $('.pg').scrollTop=y;if(c)cen()}
+ $('#q').innerHTML=`<div class="qbody"><div class="mut">Question ${i+1} of ${n} · +${q.marks?.positive??1} / −${q.marks?.negative||0}${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map((o,j)=>`<label class="opt ${S.a[i]===o.order?'sel':''}"><input type="radio" name="o" value="${o.order}" ${S.a[i]===o.order?'checked':''}><b class="kn">${j+1}</b><span>${clean(o.name,o.nameText)}</span></label>`).join('')}
+ </div><div class="qfoot"><div class="ctl"><button class="btn ghost" data-act="prev" ${i?'':'disabled'}>←<span class="lg"> Previous</span></button><button class="btn ghost" data-act="clear">Clear</button><button class="btn ghost" data-act="mark">${S.m[i]?'Unmark':'Mark'}<span class="lg"> review</span></button><button class="btn" data-act="next" ${i<n-1?'':'disabled'}><span class="lg">Save &amp; </span>Next →</button></div><p class="mut kb">Shortcuts: ← → previous / next · 1–4 choose option · M mark for review · C clear · S submit</p></div>`}
+const fx=on=>document.body.classList.toggle('fx',!!on);
+const cen=()=>{const c=$('.pg .cur'),g=$('.pg');if(c&&g){g.scrollTop=c.offsetTop-g.clientHeight/2+c.offsetHeight/2;g.scrollLeft=c.offsetLeft-g.clientWidth/2+c.offsetWidth/2}};
+function pal(c){const n=S.qs.length,A=S.a.filter(x=>x!=null).length,M=S.m.filter(Boolean).length,g=$('.pg'),y=g?g.scrollTop:0,x=g?g.scrollLeft:0;
+ $('#pal').innerHTML=`<div class="pin"><div class="pg"><div class="grid">${S.qs.map((q,i)=>`<button data-q="${i}" class="pb ${i===S.cur?'cur ':''}${S.m[i]?'mk':S.a[i]!=null?'an':S.v[i]?'nv':''}">${i+1}</button>`).join('')}</div></div><div class="pf"><div class="lgd"><div><b><i class="sw an"></i>${A}</b><span>Answered</span></div><div><b><i class="sw mk"></i>${M}</b><span>Review</span></div><div><b><i class="sw nv"></i>${n-A}</b><span>Unanswered</span></div></div><button class="btn full ${S.cf?'danger':''}" data-act="sub">${S.cf?'Press again<span class="lg"> to submit</span>':'Submit<span class="lg"> test (S)</span>'}</button></div></div>`;
+ $('.pg').scrollTop=y;$('.pg').scrollLeft=x;if(c)cen()}
 const pick=o=>{S.a[S.cur]=o;S.cf=0;rq();pal()};
 function go(n){S.tm[S.cur]=(S.tm[S.cur]||0)+Date.now()-S.q0;S.q0=Date.now();S.cur=n;S.v[n]=1;S.cf=0;rq();pal(1);scrollTo(0,0)}
 
@@ -127,7 +193,7 @@ function submit(){clearInterval(S.iv);S.tm[S.cur]=(S.tm[S.cur]||0)+Date.now()-S.
  const st=S.qs.map((q,i)=>{const p=q.marks?.positive??1,ng=q.marks?.negative||0,a=S.a[i];tot+=p;if(a==null){u++;return'u'}if(!q._c){x++;return'x'}if(q._any||q._c.includes(a)){c++;sc+=p;return'c'}w++;sc-=ng;return'w'});
  sc=Math.round(sc*100)/100;const rec={id:S.pid,name:S.name,sc,tot,used,c,w,u,at:Date.now()};
  const at=store.get('att',[]);at.push(rec);store.set('att',at.slice(-500));S.res={rec,st,x,all:at.filter(a=>a.id===rec.id)};result(S.res.all)}
-function result(all){S.mode='result';const{rec,st,x}=S.res,t=S.t,n0=S.qs.length,best={};
+function result(all){S.mode='result';fx(0);const{rec,st,x}=S.res,t=S.t,n0=S.qs.length,best={};
  all.forEach(a=>{const k=a.name.toLowerCase(),b=best[k];if(!b||a.sc>b.sc||(a.sc===b.sc&&a.used<b.used))best[k]=a});
  const lb=Object.values(best).sort((a,b)=>b.sc-a.sc||a.used-b.used),me=best[rec.name.toLowerCase()],n=lb.length;
  const rank=1+lb.filter(a=>a.sc>me.sc||(a.sc===me.sc&&a.used<me.used)).length,below=lb.filter(a=>a.sc<me.sc).length;
@@ -140,18 +206,18 @@ function result(all){S.mode='result';const{rec,st,x}=S.res,t=S.t,n0=S.qs.length,
  <div class="stats">${stats.map(([a,b])=>`<div class="stat"><div class="mut">${a}</div><div class="sv">${b}</div></div>`).join('')}</div>
  <div class="seg"><i style="width:${pc(rec.c)}%;background:var(--ok)"></i><i style="width:${pc(rec.w)}%;background:var(--bad)"></i></div>
  <p class="mut">✅ ${rec.c} correct · ❌ ${rec.w} wrong · ⏭ ${rec.u} unattempted. Rank is among students who used this browser (best attempt each).</p>
- <div class="ctl">${sa?'<button class="btn" data-act="review">Review answers (R)</button>':''}<button class="btn ghost" data-act="retake">🔁 Retake</button><button class="btn ghost" data-act="back">📝 Back to tests</button></div>
+ <div class="ctl rsl">${sa?'<button class="btn" data-act="review">Review answers (R)</button>':''}<button class="btn ghost" data-act="retake">🔁 Retake</button><button class="btn ghost" data-act="back">📝 Back to tests</button></div>
 
  `;scrollTo(0,0)}
 
 const LAB={c:'Correct',w:'Wrong',u:'Skipped',x:'Ungraded'};
 const rlist=()=>S.qs.map((q,i)=>i).filter(i=>V.f==='all'||S.res.st[i]==='w');
 function rvGo(d){const ls=rlist(),p=ls.indexOf(V.i)+d;if(p>=0&&p<ls.length)review(ls[p])}
-function review(i){S.mode='review';const st=S.res.st;if(!V)V={f:'all',i:0};if(i!=null)V.i=i;
+function review(i){S.mode='review';fx(1);const st=S.res.st;if(!V)V={f:'all',i:0};if(i!=null)V.i=i;
  const ls=rlist(),nw=st.filter(z=>z==='w').length;if(ls.length&&!ls.includes(V.i))V.i=ls[0];
  const k=V.i,q=S.qs[k],p=ls.indexOf(k);
- const body=ls.length?`<div class="mut">Question ${k+1} of ${S.qs.length} · <span class="badge ${st[k]}">${LAB[st[k]]}</span> ${Math.round((S.tm[k]||0)/1000)}s${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map(o=>`<div class="opt ${q._c?.includes(o.order)?'ok':o.order===S.a[k]?'bad':''}"><span>${clean(o.name,o.nameText)}${o.order===S.a[k]?' <small>(your answer)</small>':''}${q._c?.includes(o.order)?' ✓':''}</span></div>`).join('')}${(q.solution||'').trim()?`<div class="sol"><b>Explanation</b>${clean(q.solution)}</div>`:''}<div class="ctl"><button class="btn ghost" data-rn="-1" ${p>0?'':'disabled'}>← Previous</button><button class="btn" data-rn="1" ${p<ls.length-1?'':'disabled'}>Next →</button><button class="btn ghost chip" data-act="results">📋 Results</button><button class="btn ghost" data-act="back">📝 Back to tests</button></div><p class="mut kb">Shortcuts: ← → previous / next · F toggle wrong-only · Esc back to results</p>`:'<p>🎉 No wrong answers to review.</p>';
- app.innerHTML=`<div class="bar"><div class="ttl">${esc(S.title)} · Review</div><div class="row"><button class="btn ghost chip ${V.f==='all'?'on':''}" data-rf="all">All questions (${S.qs.length})</button><button class="btn ghost chip ${V.f==='w'?'on':''}" data-rf="w">Wrong only (${nw})</button><button class="btn ghost chip" data-act="results">← Results</button></div></div><div class="lay"><section class="card" id="q">${body}</section><aside class="card" id="pal"><div class="pin"><div class="pg"><div class="grid">${ls.map(j=>`<button data-rq="${j}" class="pb ${st[j]} ${j===k?'cur':''}">${j+1}</button>`).join('')}</div></div><div class="pf"><p class="mut">🟩 correct · 🟥 wrong · ⬜ skipped</p></div></div></aside></div>`;
+ const body=ls.length?`<div class="qbody"><div class="mut">Question ${k+1} of ${S.qs.length} · <span class="badge ${st[k]}">${LAB[st[k]]}</span> ${Math.round((S.tm[k]||0)/1000)}s${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map(o=>`<div class="opt ${q._c?.includes(o.order)?'ok':o.order===S.a[k]?'bad':''}"><span class="ot">${clean(o.name,o.nameText)}</span>${(()=>{const ok=q._c?.includes(o.order),me=o.order===S.a[k];return ok||me?`<small class="mk2">${ok?'✓ ':''}${me?'Your answer':'Correct'}</small>`:''})()}</div>`).join('')}${(q.solution||'').trim()?`<div class="sol"><b>Explanation</b>${clean(q.solution)}</div>`:''}</div><div class="qfoot"><div class="ctl two"><button class="btn ghost" data-rn="-1" ${p>0?'':'disabled'}>← Previous</button><button class="btn" data-rn="1" ${p<ls.length-1?'':'disabled'}>Next →</button><button class="btn ghost chip" data-act="results">← 📋 Results</button><button class="btn ghost" data-act="back">← 📝 Back to tests</button></div><p class="mut kb">Shortcuts: ← → previous / next · F toggle wrong-only · Esc back to results</p></div>`:'<div class="qbody"><p>🎉 No wrong answers to review.</p></div>';
+ app.innerHTML=`<div class="bar rvbar"><div class="ttl">${esc(S.title)} · Review</div><div class="row"><button class="btn ghost chip ${V.f==='all'?'on':''}" data-rf="all">All<span class="lg"> questions</span> (${S.qs.length})</button><button class="btn ghost chip ${V.f==='w'?'on':''}" data-rf="w">Wrong<span class="lg"> only</span> (${nw})</button><button class="btn ghost chip" data-act="results">← 📋 Results</button></div></div><div class="lay"><section class="card" id="q">${body}</section><aside class="card" id="pal"><div class="pin"><div class="pg"><div class="grid">${ls.map(j=>`<button data-rq="${j}" class="pb ${st[j]} ${j===k?'cur':''}">${j+1}</button>`).join('')}</div></div><div class="pf"><div class="lgd"><div><b><i class="sw c"></i>${st.filter(z=>z==='c').length}</b><span>Correct</span></div><div><b><i class="sw w"></i>${nw}</b><span>Wrong</span></div><div><b><i class="sw u"></i>${st.filter(z=>z==='u'||z==='x').length}</b><span>Skipped</span></div></div></div></div></aside></div>`;
  cen();scrollTo(0,0)}
 function act(a){if(a==='back')return browse();if(a==='review'){V=null;return review(0)}if(a==='results')return result(S.res.all);if(a==='retake')return start(S.e,S.title,S.pid);
  if(a==='prev'&&S.cur>0)go(S.cur-1);
