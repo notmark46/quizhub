@@ -78,6 +78,7 @@ body.fx #q{display:flex;flex-direction:column;padding:0;overflow:hidden}
 input#nm{flex:1;min-width:0;font-size:16px;margin-left:0}
 .leaf>div{min-width:0}.leaf .btn{flex:none}.tn{overflow-wrap:anywhere}
 .folder span:first-child{min-width:0;overflow-wrap:anywhere;text-align:left}
+.folder span:last-child{flex:none;white-space:nowrap;align-self:center}
 .sgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 @media(max-width:760px){
  #app{padding:12px}h1{font-size:22px}.stats{grid-template-columns:repeat(2,1fr)}.stat .sv{font-size:19px}
@@ -116,6 +117,12 @@ input#nm{flex:1;min-width:0;font-size:16px;margin-left:0}
 .sw.an,.sw.c{background:var(--ok);border-color:var(--ok)}.sw.mk{background:var(--amber);border-color:var(--amber)}.sw.w{background:var(--bad);border-color:var(--bad)}.sw.nv,.sw.u{background:var(--bg)}
 /* big screens: boxes keep filling the width, text and sidebar scale up */
 @media(min-width:1400px){body.fx{font-size:17px}body.fx .lay{grid-template-columns:minmax(0,1fr) 300px}body.fx .qt{font-size:19px}body.fx .pb{padding:10px 0}}
+/* mobile: question text, answer options, folder rows and test names are 20% larger */
+@media(max-width:760px){
+ .qt{font-size:18px}.opt{font-size:18px}
+ .folder{font-size:18px}.folder .mut{font-size:15.6px}
+ .tn{font-size:18px}
+}
 /* landscape phones / very short screens */
 @media(max-height:480px){
  body.fx #app{gap:6px;padding-top:max(6px,env(safe-area-inset-top));padding-bottom:max(6px,env(safe-area-inset-bottom))}
@@ -134,27 +141,37 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v)
 const OK=new Set('P B STRONG I EM U BR TABLE THEAD TBODY TR TD TH SUB SUP UL OL LI H2 H3 H4'.split(' '));
 function clean(html,fb){if(!html)return esc(fb);const d=new DOMParser().parseFromString(html,'text/html'),out=document.createElement('div');
  (function w(n,t){for(const c of n.childNodes){if(c.nodeType===3)t.append(c.textContent);else if(c.nodeType===1){const g=c.tagName;if(g==='SCRIPT'||g==='STYLE')continue;if(OK.has(g)){const e=document.createElement(g);w(c,e);t.append(e)}else w(c,t)}}})(d.body,out);return out.innerHTML}
+/* marking for EVERY test (overrides marks stored in the files): +2 correct, −0.66 wrong; multi-answer questions: +2 / 0.
+   Bump MARK_VER if you change these, so scores from the old scheme are not mixed into best score / rank. */
+const MARK_POS=2,MARK_NEG=0.66,MARK_VER=2;
 const DG={A:{min:70},B:{min:50},C:{min:35},D:{min:20},E:{min:10},F:{min:0}};
 const grade=(p,g)=>Object.entries(g||DG).sort((a,b)=>b[1].min-a[1].min).find(([k,v])=>p>=v.min)?.[0]||'F';
 /* accepts {answers,test:{sections}} OR the flat {name,duration,ques:[...]} format; correct option = isCorrect:true */
 function norm(e){if(!e||e._n)return e;
  if(!e.test&&Array.isArray(e.ques))e={answers:e.answers,test:{name:e.name,duration:e.duration,settings:e.settings,sections:[{name:'',questions:e.ques}]}};
- for(const sc of e.test?.sections||[])sc.questions=(sc.questions||[]).map(q=>{const m=q.marks||{},ops=(q.options||[]).map((o,i)=>({...o,order:o.order??i+1})),ok=ops.filter(o=>o.isCorrect===true).map(o=>o.order);
-  return{...q,options:ops,marks:{positive:m.positive>0?m.positive:1,negative:m.positive>0?(m.negative||0):0},_ok:ok.length?ok:null}});
+ for(const sc of e.test?.sections||[])sc.questions=(sc.questions||[]).map(q=>{const ops=(q.options||[]).map((o,i)=>({...o,order:o.order??i+1})),ok=ops.filter(o=>o.isCorrect===true).map(o=>o.order),multi=q.hasMultipleAnswers===true||ok.length>1;
+  return{...q,options:ops,marks:{positive:MARK_POS,negative:multi?0:MARK_NEG},_multi:multi,_ok:ok.length?ok:null}});
  e._n=1;return e}
 const Qs=e=>(e.test.sections||[]).flatMap(s=>(s.questions||[]).map(q=>({...q,_sec:s.name})));
 let S=null,IDX=[],nav={f:null,p:[]},V=null;
 
 const cache={};
 async function load(f){if(!cache[f]){const r=await fetch('files/'+f);if(!r.ok)throw new Error(f+' → HTTP '+r.status);cache[f]=await r.json()}return cache[f]}
-const kids=n=>Object.entries(n).filter(([k])=>k[0]!=='_');
-const isLeaf=v=>typeof v==='string'||!!(v&&typeof v.test==='object'&&v.test)||Array.isArray(v?.ques);
+const kids=n=>Object.entries(n).filter(([k,v])=>k[0]!=='_'&&typeof v!=='number');
+/* a test is: a file path string, {test_data:'tests/x.json',ques_count:N}, an inline {test:{...}}, or a flat {ques:[...]} */
+const isLeaf=v=>typeof v==='string'||typeof v?.test_data==='string'||!!(v&&typeof v.test==='object'&&v.test)||Array.isArray(v?.ques);
 const cnt=n=>isLeaf(n)?1:kids(n).reduce((s,[,v])=>s+cnt(v),0);
+/* folder test total: the JSON's own _tests_count when present, otherwise counted */
+const tcount=n=>{for(const k of['_tests_count','_test_count','tests_count','test_count'])if(Number.isFinite(+n[k]))return +n[k];return cnt(n)};
+const tpath=v=>typeof v==='string'?v:typeof v?.test_data==='string'?v.test_data:null;
 const cur=()=>nav.p.reduce((n,k)=>n[k],cache[nav.f]);
 const pid=k=>nav.f+'/'+[...nav.p,k].join('/');
 const note=t=>{const m=$('#msg');if(m)m.innerHTML='<div class="note">'+esc(t)+'</div>'};
-function leaf(k,v,i,at){const e=typeof v==='string'?null:norm(v),m=at.filter(a=>a.id===pid(k)),b=m.length?Math.max(...m.map(a=>a.sc)):0;let meta='';
- if(e&&e.test.sections){const qs=Qs(e),d=e.test.duration;meta=`${qs.length} Qs · ${qs.reduce((s,q)=>s+(q.marks?.positive??1),0)} marks · ${d?Math.round(d/6e4)+' min':'untimed'}`}
+/* list duration: ms like the test files (3780000 = 63 min); a plain number under 1000 is read as minutes */
+const mins=d=>{d=+d;return d>0?Math.round(d>=1000?d/6e4:d):0};
+function leaf(k,v,i,at){const p=tpath(v),raw=p?cache[p]:v,e=raw?norm(raw):null,m=at.filter(a=>a.id===pid(k)&&a.mk===MARK_VER),b=m.length?Math.max(...m.map(a=>a.sc)):0;let meta='';
+ if(e&&e.test&&e.test.sections){const qs=Qs(e),mn=mins(e.test.duration||v?.duration);meta=`${qs.length} Qs · ${qs.reduce((s,q)=>s+(q.marks?.positive??MARK_POS),0)} marks · ${mn?mn+' min':'untimed'}`}
+ else{const qc=+v?.ques_count,mn=mins(v?.duration),parts=[];if(qc>0){parts.push(qc===1?'1 Q':`${qc} Qs`);parts.push(`${qc*MARK_POS} marks`)}if(mn)parts.push(`${mn} min`);meta=parts.join(' · ')}
  if(m.length)meta+=`${meta?' · ':''}${m.length} attempt${m.length>1?'s':''} · best ${b}`;
  return `<div class="card leaf"><div><div class="tn">${esc(k)}</div><div class="mut">${meta}</div></div><button class="btn" data-start="${i}">Start test</button></div>`}
 async function browse(){fx(0);if(S)clearInterval(S.iv);S=null;const at=store.get('att',[]);
@@ -167,7 +184,7 @@ async function browse(){fx(0);if(S)clearInterval(S.iv);S=null;const at=store.get
   await load(nav.f);const sj=IDX.find(s=>s.file===nav.f)?.name||nav.f,tr=[['All subjects',-1],[sj,0],...nav.p.map((k,i)=>[k,i+1])];
   $('#crumb').innerHTML=tr.map(([t,n],i)=>i<tr.length-1?`<a data-c="${n}">${esc(t)}</a>`:`<b>${esc(t)}</b>`).join(' › ');
   const ks=kids(cur());
-  L.innerHTML=ks.map(([k,v],i)=>isLeaf(v)?leaf(k,v,i,at):`<button class="folder" data-open="${i}"><span>📁 ${esc(k)}</span><span class="mut">${cnt(v)} test${cnt(v)>1?'s':''} ›</span></button>`).join('')||'<p class="mut">Nothing here yet.</p>';
+  L.innerHTML=ks.map(([k,v],i)=>isLeaf(v)?leaf(k,v,i,at):`<button class="folder" data-open="${i}"><span>📁 ${esc(k)}</span><span class="mut">${tcount(v)} test${tcount(v)===1?'':'s'} ›</span></button>`).join('')||'<p class="mut">Nothing here yet.</p>';
  }catch(e){L.innerHTML=`<div class="note">${esc(e.message||e)}</div>`}}
 
 function start(e,title,pid){e=norm(e);if(!e?.test?.sections)return note('This test file is missing "test.sections".');const nm=($('#nm')?.value||S?.name||'').trim()||'Student';store.set('name',nm);const k=e.answers||{};
@@ -179,20 +196,23 @@ function start(e,title,pid){e=norm(e);if(!e?.test?.sections)return note('This te
 function tick(){const l=S.dur?S.dur-(Date.now()-S.t0):Date.now()-S.t0;if(S.dur&&l<=0)return submit();const c=$('#clk');c.textContent=fmt(l);c.classList.toggle('low',!!S.dur&&l<6e4)}
 function rq(){const i=S.cur,q=S.qs[i],n=S.qs.length;
  $('#q').innerHTML=`<div class="qbody"><div class="mut">Question ${i+1} of ${n} · +${q.marks?.positive??1} / −${q.marks?.negative||0}${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map((o,j)=>`<label class="opt ${S.a[i]===o.order?'sel':''}"><input type="radio" name="o" value="${o.order}" ${S.a[i]===o.order?'checked':''}><b class="kn">${j+1}</b><span>${clean(o.name,o.nameText)}</span></label>`).join('')}
- </div><div class="qfoot"><div class="ctl"><button class="btn ghost" data-act="prev" ${i?'':'disabled'}>←<span class="lg"> Previous</span></button><button class="btn ghost" data-act="clear">Clear</button><button class="btn ghost" data-act="mark">${S.m[i]?'Unmark':'Mark'}<span class="lg"> review</span></button><button class="btn" data-act="next" ${i<n-1?'':'disabled'}><span class="lg">Save &amp; </span>Next →</button></div><p class="mut kb">Shortcuts: ← → previous / next · 1–4 choose option · M mark for review · C clear · S submit</p></div>`}
+ </div><div class="qfoot"><div class="ctl"><button class="btn ghost" data-act="prev" ${i?'':'disabled'}>←<span class="lg"> Previous</span></button><button class="btn ghost" data-act="clear">Clear</button><button class="btn ghost" data-act="mark">${S.m[i]?'Unmark':'Mark'}<span class="lg"> review</span></button>${i<n-1?'<button class="btn" data-act="next"><span class="lg">Save &amp; </span>Next →</button>':`<button class="btn ${S.cf?'danger':''}" data-act="sub">${subLabel()}</button>`}</div><p class="mut kb">Shortcuts: ← → previous / next · 1–4 choose option · M mark for review · C clear · S submit</p></div>`}
 const fx=on=>document.body.classList.toggle('fx',!!on);
 const cen=()=>{const c=$('.pg .cur'),g=$('.pg');if(c&&g){g.scrollTop=c.offsetTop-g.clientHeight/2+c.offsetHeight/2;g.scrollLeft=c.offsetLeft-g.clientWidth/2+c.offsetWidth/2}};
 function pal(c){const n=S.qs.length,A=S.a.filter(x=>x!=null).length,M=S.m.filter(Boolean).length,g=$('.pg'),y=g?g.scrollTop:0,x=g?g.scrollLeft:0;
- $('#pal').innerHTML=`<div class="pin"><div class="pg"><div class="grid">${S.qs.map((q,i)=>`<button data-q="${i}" class="pb ${i===S.cur?'cur ':''}${S.m[i]?'mk':S.a[i]!=null?'an':S.v[i]?'nv':''}">${i+1}</button>`).join('')}</div></div><div class="pf"><div class="lgd"><div><b><i class="sw an"></i>${A}</b><span>Answered</span></div><div><b><i class="sw mk"></i>${M}</b><span>Review</span></div><div><b><i class="sw nv"></i>${n-A}</b><span>Unanswered</span></div></div><button class="btn full ${S.cf?'danger':''}" data-act="sub">${S.cf?'Press again<span class="lg"> to submit</span>':'Submit<span class="lg"> test (S)</span>'}</button></div></div>`;
+ $('#pal').innerHTML=`<div class="pin"><div class="pg"><div class="grid">${S.qs.map((q,i)=>`<button data-q="${i}" class="pb ${i===S.cur?'cur ':''}${S.m[i]?'mk':S.a[i]!=null?'an':S.v[i]?'nv':''}">${i+1}</button>`).join('')}</div></div><div class="pf"><div class="lgd"><div><b><i class="sw an"></i>${A}</b><span>Answered</span></div><div><b><i class="sw mk"></i>${M}</b><span>Review</span></div><div><b><i class="sw nv"></i>${n-A}</b><span>Unanswered</span></div></div><button class="btn full ${S.cf?'danger':''}" data-act="sub">${subLabel()}</button></div></div>`;
  $('.pg').scrollTop=y;$('.pg').scrollLeft=x;if(c)cen()}
+const subLabel=()=>S.cf?'Press again<span class="lg"> to submit</span>':'Submit<span class="lg"> test (S)</span>';
+/* keep every Submit button (sidebar + last-question footer) in step without re-rendering the question */
+const syncSub=()=>document.querySelectorAll('[data-act=sub]').forEach(b=>{b.innerHTML=subLabel();b.classList.toggle('danger',!!S.cf)});
 const pick=o=>{S.a[S.cur]=o;S.cf=0;rq();pal()};
 function go(n){S.tm[S.cur]=(S.tm[S.cur]||0)+Date.now()-S.q0;S.q0=Date.now();S.cur=n;S.v[n]=1;S.cf=0;rq();pal(1);scrollTo(0,0)}
 
 function submit(){clearInterval(S.iv);S.tm[S.cur]=(S.tm[S.cur]||0)+Date.now()-S.q0;
  const used=Math.min(Date.now()-S.t0,S.dur||Infinity);let sc=0,c=0,w=0,u=0,x=0,tot=0;
  const st=S.qs.map((q,i)=>{const p=q.marks?.positive??1,ng=q.marks?.negative||0,a=S.a[i];tot+=p;if(a==null){u++;return'u'}if(!q._c){x++;return'x'}if(q._any||q._c.includes(a)){c++;sc+=p;return'c'}w++;sc-=ng;return'w'});
- sc=Math.round(sc*100)/100;const rec={id:S.pid,name:S.name,sc,tot,used,c,w,u,at:Date.now()};
- const at=store.get('att',[]);at.push(rec);store.set('att',at.slice(-500));S.res={rec,st,x,all:at.filter(a=>a.id===rec.id)};result(S.res.all)}
+ sc=Math.round(sc*100)/100;const rec={id:S.pid,name:S.name,sc,tot,used,c,w,u,at:Date.now(),mk:MARK_VER};
+ const at=store.get('att',[]);at.push(rec);store.set('att',at.slice(-500));S.res={rec,st,x,all:at.filter(a=>a.id===rec.id&&a.mk===MARK_VER)};result(S.res.all)}
 function result(all){S.mode='result';fx(0);const{rec,st,x}=S.res,t=S.t,n0=S.qs.length,best={};
  all.forEach(a=>{const k=a.name.toLowerCase(),b=best[k];if(!b||a.sc>b.sc||(a.sc===b.sc&&a.used<b.used))best[k]=a});
  const lb=Object.values(best).sort((a,b)=>b.sc-a.sc||a.used-b.used),me=best[rec.name.toLowerCase()],n=lb.length;
@@ -224,12 +244,12 @@ function act(a){if(a==='back')return browse();if(a==='review'){V=null;return rev
  if(a==='next'&&S.cur<S.qs.length-1)go(S.cur+1);
  if(a==='clear'){S.a[S.cur]=null;rq();pal()}
  if(a==='mark'){S.m[S.cur]=!S.m[S.cur];rq();pal()}
- if(a==='sub'){if(!S.cf){S.cf=1;pal()}else submit()}}
+ if(a==='sub'){if(!S.cf){S.cf=1;pal();syncSub()}else submit()}}
 app.addEventListener('click',async ev=>{const b=ev.target.closest('[data-act],[data-sub],[data-open],[data-start],[data-c],[data-q],[data-rq],[data-rn],[data-rf]');if(!b)return;const d=b.dataset;
  if(d.sub!=null){nav={f:IDX[+d.sub].file,p:[]};browse()}
  else if(d.open!=null){nav.p.push(kids(cur())[+d.open][0]);browse()}
  else if(d.c!=null){const n=+d.c;if(n<0)nav={f:null,p:[]};else nav.p=nav.p.slice(0,n);browse()}
- else if(d.start!=null){const[k,v]=kids(cur())[+d.start];let e=v;if(typeof v==='string'){try{e=await load(v)}catch(x){return note('Could not load '+v+' – check the path in your subject file.')}}start(e,k,pid(k))}
+ else if(d.start!=null){const[k,v]=kids(cur())[+d.start];let e=v;const p=tpath(v);if(p){try{e=await load(p)}catch(x){return note('Could not load '+p+' – check the path in your subject file.')}}start(e,k,pid(k))}
  else if(d.rq!=null)review(+d.rq);else if(d.rn!=null)rvGo(+d.rn);else if(d.rf){V.f=d.rf;review()}
  else if(d.q!=null)go(+d.q);else act(d.act)});
 app.addEventListener('change',ev=>{if(ev.target.name==='o'&&S?.mode==='test')pick(+ev.target.value)});
@@ -238,7 +258,7 @@ document.addEventListener('keydown',ev=>{if(!S||ev.ctrlKey||ev.metaKey||ev.altKe
   if(k==='arrowright'||k==='n')act('next');else if(k==='arrowleft'||k==='p')act('prev');
   else if(k>='1'&&k<='9'&&+k<=(q.options||[]).length)pick(q.options[+k-1].order);
   else if(k==='m')act('mark');else if(k==='c'||k==='backspace'||k==='delete')act('clear');
-  else if(k==='s')act('sub');else if(k==='escape'&&S.cf){S.cf=0;pal()}else h=0}
+  else if(k==='s')act('sub');else if(k==='escape'&&S.cf){S.cf=0;pal();syncSub()}else h=0}
  else if(m==='review'){if(k==='arrowright'||k==='n')rvGo(1);else if(k==='arrowleft'||k==='p')rvGo(-1);else if(k==='f'){V.f=V.f==='all'?'w':'all';review()}else if(k==='escape'||k==='r')act('results');else h=0}
  else if(m==='result'&&k==='r'&&S.t.settings?.showAnswers!==false)act('review');
  else h=0;
