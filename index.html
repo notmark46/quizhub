@@ -131,14 +131,6 @@ input#nm{flex:1;min-width:0;font-size:16px;margin-left:0}
  body.fx .bar{padding:6px 10px}
  .qfoot{padding:6px 10px}.qfoot .btn{padding:8px 6px}
 }
-/* review page, small screens: two rows so the full button text shows (Prev | Next, then More Tests | Results) */
-@media(max-width:760px) and (min-height:481px){
- body.fx .qfoot .ctl.rvf{grid-template-columns:1fr 1fr}
- body.fx .qfoot .ctl.rvf [data-rn="-1"]{order:1}
- body.fx .qfoot .ctl.rvf [data-rn="1"]{order:2}
- body.fx .qfoot .ctl.rvf [data-act="back"]{order:3}
- body.fx .qfoot .ctl.rvf [data-act="results"]{order:4}
-}
 </style></head>
 <body><div id="app"></div>
 <script>
@@ -244,7 +236,7 @@ function rvGo(d){const ls=rlist(),p=ls.indexOf(V.i)+d;if(p>=0&&p<ls.length)revie
 function review(i){S.mode='review';fx(1);const st=S.res.st;if(!V)V={f:'all',i:0};if(i!=null)V.i=i;
  const ls=rlist(),nw=st.filter(z=>z==='w').length;if(ls.length&&!ls.includes(V.i))V.i=ls[0];
  const k=V.i,q=S.qs[k],p=ls.indexOf(k);
- const body=ls.length?`<div class="qbody"><div class="mut">Question ${k+1} of ${S.qs.length} · <span class="badge ${st[k]}">${LAB[st[k]]}</span> ${Math.round((S.tm[k]||0)/1000)}s${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map(o=>`<div class="opt ${q._c?.includes(o.order)?'ok':o.order===S.a[k]?'bad':''}"><span class="ot">${clean(o.name,o.nameText)}</span>${(()=>{const ok=q._c?.includes(o.order),me=o.order===S.a[k];return ok||me?`<small class="mk2">${ok?'✓ ':''}${me?'Your answer':'Correct'}</small>`:''})()}</div>`).join('')}${(q.solution||'').trim()?`<div class="sol"><b>Explanation</b>${clean(q.solution)}</div>`:''}</div><div class="qfoot"><p class="mut kb">Shortcuts: ← → previous / next · F toggle wrong-only · Esc back to results</p><div class="ctl rvf"><button class="btn ghost" data-rn="-1" ${p>0?'':'disabled'}>←Prev.</button><button class="btn ghost chip" data-act="back">←📝More Tests</button><button class="btn ghost chip" data-act="results">←📋Results</button><button class="btn" data-rn="1" ${p<ls.length-1?'':'disabled'}>Next→</button></div></div>`:'<div class="qbody"><p>🎉 No wrong answers to review.</p></div>';
+ const body=ls.length?`<div class="qbody"><div class="mut">Question ${k+1} of ${S.qs.length} · <span class="badge ${st[k]}">${LAB[st[k]]}</span> ${Math.round((S.tm[k]||0)/1000)}s${q._sec?' · '+esc(q._sec):''}</div><div class="qt">${clean(q.name,q.nameText)}</div>${(q.options||[]).map(o=>`<div class="opt ${q._c?.includes(o.order)?'ok':o.order===S.a[k]?'bad':''}"><span class="ot">${clean(o.name,o.nameText)}</span>${(()=>{const ok=q._c?.includes(o.order),me=o.order===S.a[k];return ok||me?`<small class="mk2">${ok?'✓ ':''}${me?'Your answer':'Correct'}</small>`:''})()}</div>`).join('')}${(q.solution||'').trim()?`<div class="sol"><b>Explanation</b>${clean(q.solution)}</div>`:''}</div><div class="qfoot"><p class="mut kb">Shortcuts: ← → previous / next · F toggle wrong-only · Esc back to results</p><div class="ctl"><button class="btn ghost" data-rn="-1" ${p>0?'':'disabled'}>←Prev.</button><button class="btn ghost chip" data-act="back">←📝More Tests</button><button class="btn ghost chip" data-act="results">←📋Results</button><button class="btn" data-rn="1" ${p<ls.length-1?'':'disabled'}>Next→</button></div></div>`:'<div class="qbody"><p>🎉 No wrong answers to review.</p></div>';
  app.innerHTML=`<div class="bar rvbar"><div class="ttl">${esc(S.title)} · Review</div><div class="row"><button class="btn ghost chip ${V.f==='all'?'on':''}" data-rf="all">All<span class="lg"> questions</span> (${S.qs.length})</button><button class="btn ghost chip ${V.f==='w'?'on':''}" data-rf="w">Wrong<span class="lg"> only</span> (${nw})</button><button class="btn ghost chip" data-act="results">←📋 Results</button></div></div><div class="lay"><section class="card" id="q">${body}</section><aside class="card" id="pal"><div class="pin"><div class="pg"><div class="grid">${ls.map(j=>`<button data-rq="${j}" class="pb ${st[j]} ${j===k?'cur':''}">${j+1}</button>`).join('')}</div></div><div class="pf"><div class="lgd"><div><b><i class="sw c"></i>${st.filter(z=>z==='c').length}</b><span>Correct</span></div><div><b><i class="sw w"></i>${nw}</b><span>Wrong</span></div><div><b><i class="sw u"></i>${st.filter(z=>z==='u'||z==='x').length}</b><span>Skipped</span></div></div></div></div></aside></div>`;
  cen();scrollTo(0,0)}
 function act(a){if(a==='back')return browse();if(a==='review'){V=null;return review(0)}if(a==='results')return result(S.res.all);if(a==='retake')return start(S.e,S.title,S.pid);
